@@ -1,5 +1,7 @@
+export { DuablePotato } from './do';
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('judoree World!');
+		return new Response('Hello World!');
 	},
 } satisfies ExportedHandler<Env>;
