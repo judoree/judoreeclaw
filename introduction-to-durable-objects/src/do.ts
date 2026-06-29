@@ -1,3 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 
-export class DuablePotato extends DurableObject<Env> {}
+export class DurablePotato extends DurableObject<Env> {
+	ping() {
+		return 'pong';
+	}
+}
