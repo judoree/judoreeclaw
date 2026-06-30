@@ -2,7 +2,13 @@ export { DurablePotato } from './do';
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const stub = env.DP.getByName('default');
-		return new Response('Hello World!');
+		const { pathname } = new URL(request.url);
+		if (pathname === '/') {
+			const dp = env.DP.getByName('default');
+			return new Response(await dp.increase());
+		}
+		return new Response(null, {
+			status: 404,
+		});
 	},
 } satisfies ExportedHandler<Env>;
