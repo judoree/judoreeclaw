@@ -10,14 +10,26 @@ export class DurablePotato extends DurableObject<Env> {
 
 		this.ctx.acceptWebSocket(server);
 
+		server.serializeAttachment({ nickname });
+
 		return new Response(null, { status: 101, webSocket: client });
 	}
 
+	broadcast(message: string, exclude?: WebSocket) {
+		for (const socket of this.ctx.getWebSockets()) {
+			if (socket !== exclude) {
+				socket.send(message);
+			}
+		}
+	}
+
 	webSocketMessage(ws: WebSocket, message: string) {
-		console.log(message);
+		const { nickname } = ws.deserializeAttachment() as { nickname: string };
+		this.broadcast(`${nickname} said: ${message}`, ws);
 	}
 
 	webSocketClose(ws: WebSocket) {
-		console.log('someone left');
+		const { nickname } = ws.deserializeAttachment() as { nickname: string };
+		this.broadcast(`${nickname} has left the building.`);
 	}
 }
