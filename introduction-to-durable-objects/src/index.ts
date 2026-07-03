@@ -3,11 +3,13 @@ export { DurablePotato } from './do';
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const { pathname, searchParams } = new URL(request.url);
-		const roomId = searchParams.get('roomId') ?? 'public';
-		const upgrade = request.headers.get('Upgrade');
-		if (upgrade) {
-			const dp = env.DP.getByName(roomId);
-			return dp.fetch(request);
+		if (pathname === '/ws') {
+			const roomId = searchParams.get('roomId') ?? 'public';
+			const upgrade = request.headers.get('Upgrade');
+			if (upgrade) {
+				const dp = env.DP.getByName(roomId);
+				return dp.fetch(request);
+			}
 		}
 		return new Response(null, {
 			status: 404,
