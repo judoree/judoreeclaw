@@ -16,7 +16,10 @@ function App() {
   return (
     <div>
       <h1>Ping Pong Agent</h1>
-      <h3>Ping Pong Count: {pingPongs}</h3>
+      <h3>Ping Pong Count: {agent?.state?.pingPongCount}</h3>
+      <hr />
+      <button onClick={() => agent.stub.decrement()}>decrement</button>
+      <button onClick={() => agent.stub.increment()}>increment</button>
     </div>
   );
 }
