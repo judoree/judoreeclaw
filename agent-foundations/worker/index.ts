@@ -1,26 +1,42 @@
-import { Agent, callable, routeAgentRequest } from "agents";
+import {
+  Agent,
+  callable,
+  routeAgentRequest,
+  type Connection,
+  type ConnectionContext,
+  type WSMessage,
+} from "agents";
 
-export type PingPongState = {
-  pingPongCount: number;
+export type ChattingRoomState = {
+  currentlyOnline: number;
 };
 
-export class ChattingRoomAgent extends Agent<Env, PingPongState> {
+export class ChattingRoomAgent extends Agent<Env, ChattingRoomState> {
   initialState = {
-    pingPongCount: 0,
+    currentlyOnline: 0,
   };
 
-  @callable()
-  increment() {
+  onStateChanged(
+    // 누가 눌렀는지 체크 가능
+    state: ChattingRoomState | undefined,
+    source: Connection | "server"
+  ): void {
+    console.log("new state", state);
+    console.log("who did it", source);
+  }
+  onConnect() {
     this.setState({
-      pingPongCount: this.state.pingPongCount + 1,
+      currentlyOnline: this.state.currentlyOnline + 1,
     });
   }
-
-  @callable()
-  decrement() {
+  onClose() {
     this.setState({
-      pingPongCount: this.state.pingPongCount - 1,
+      currentlyOnline: this.state.currentlyOnline - 1,
     });
+  }
+  onMessage(connection: Connection, message: WSMessage) {
+    console.log(message);
+    connection.send("love you back");
   }
 }
 
