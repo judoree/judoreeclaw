@@ -18,14 +18,14 @@
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "ChattingsRoomAgent",
-        "name": "AGENT",
+        "class_name": "ChattingRoomAgent",
+        "name": "ChattingRoomAgent",
       },
     ],
   },
   "migrations": [
     {
-      "new_sqlite_classes": ["ChattingsRoomAgent"],
+      "new_sqlite_classes": ["ChattingRoomAgent"],
       "tag": "v1",
     },
   ],
