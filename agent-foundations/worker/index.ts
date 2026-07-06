@@ -16,6 +16,17 @@ export class ChattingRoomAgent extends Agent<Env, ChattingRoomState> {
     currentlyOnline: 0,
   };
 
+  onStart() {
+    void this.sql`
+      CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nickname TEXT NOT NULL,
+        message TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    `;
+  }
+
   onStateChanged(
     // 누가 눌렀는지 체크 가능
     state: ChattingRoomState | undefined,
@@ -24,6 +35,14 @@ export class ChattingRoomAgent extends Agent<Env, ChattingRoomState> {
     console.log("new state", state);
     console.log("who did it", source);
   }
+
+  validateStateChange(
+    _nextState: ChattingRoomState,
+    source: Connection | "server"
+  ): void {
+    if (source !== "server") throw new Error("cant do this.");
+  }
+
   onConnect() {
     this.setState({
       currentlyOnline: this.state.currentlyOnline + 1,
@@ -35,8 +54,15 @@ export class ChattingRoomAgent extends Agent<Env, ChattingRoomState> {
     });
   }
   onMessage(connection: Connection, message: WSMessage) {
-    console.log(message);
-    connection.send("love you back");
+    const messageObj = {
+      nickname: "anon",
+      message: message.toString(),
+      created_at: Date.now(),
+    };
+    void this.sql`
+      INSERT INTO messages (nickname, message, created_at) VALUES (${messageObj.nickname}, ${messageObj.message}, ${messageObj.created_at})
+      `;
+    this.broadcast(JSON.stringify(messageObj), [connection.id]);
   }
 }
 
