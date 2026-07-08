@@ -30,6 +30,7 @@ function App() {
     onMessage: (event) =>
       setMessages((prev) => [...prev, JSON.parse(event.data)]),
     // onStateUpdate: (state) => setPingPongs(state.pingPongCount),
+    onStateUpdateError: () => console.log("Cant do that...."),
   });
 
   const sendMessage = () => {
