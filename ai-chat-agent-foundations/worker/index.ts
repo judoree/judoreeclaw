@@ -1,12 +1,18 @@
 import { AIChatAgent } from "@cloudflare/ai-chat";
 import { routeAgentRequest } from "agents";
 
-export class PotatoChatAgent extends AIChatAgent<Env> {}
+export class PotatoChatAgent extends AIChatAgent<Env> {
+  async onChatMessage() {
+    console.log(JSON.stringify(this.messages));
+    return new Response("hello");
+  }
+}
 
 export default {
-  fetch(request, env) {
+  async fetch(request, env) {
     return (
-      routeAgentRequest(request, env) ?? new Response(null, { status: 404 })
+      (await routeAgentRequest(request, env)) ??
+      new Response(null, { status: 404 })
     );
   },
 } satisfies ExportedHandler<Env>;
