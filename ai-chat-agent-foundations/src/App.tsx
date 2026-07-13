@@ -1,12 +1,25 @@
 import { useAgentChat } from "agents/chat/react";
 import { useAgent } from "agents/react";
-import { getToolName, isToolUIPart, type UIMessage } from "ai";
+import { getToolName, isToolUIPart, tool, type UIMessage } from "ai";
+
 import type React from "react";
 
 function App() {
   const agent = useAgent({ agent: "PotatoChatAgent" });
   const { messages, sendMessage, clearHistory, status } = useAgentChat({
     agent,
+    onToolCall: async ({ toolCall, addToolOutput }) => {
+      if (toolCall.toolName === "getLocation") {
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, rejects) =>
+            navigator.geolocation.getCurrentPosition(resolve, rejects)
+        );
+        addToolOutput({
+          toolCallId: toolCall.toolCallId,
+          output: position.toJSON,
+        });
+      }
+    },
   });
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
