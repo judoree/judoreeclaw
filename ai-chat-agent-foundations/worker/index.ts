@@ -1,21 +1,25 @@
 import { AIChatAgent } from "@cloudflare/ai-chat";
 import { routeAgentRequest } from "agents";
-import { convertToModelMessages, generateText } from "ai";
+import { convertToModelMessages, isLoopFinished, streamText } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
+import { getWether } from "./tools.ts";
 
 export class PotatoChatAgent extends AIChatAgent<Env> {
   async onChatMessage() {
     const workersAi = createWorkersAI({
       binding: this.env.AI,
     });
-    const { text } = await generateText({
+    const result = streamText({
       model: workersAi("@cf/zai-org/glm-4.7-flash"),
       messages: await convertToModelMessages(this.messages),
+      tools: {
+        getWether,
+      },
+      stopWhen: isLoopFinished(),
     });
-    return new Response(text);
+    return result.toUIMessageStreamResponse();
   }
 }
-
 export default {
   async fetch(request, env) {
     return (
