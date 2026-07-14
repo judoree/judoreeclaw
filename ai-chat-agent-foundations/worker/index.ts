@@ -6,6 +6,7 @@ import {
   streamText,
   type StreamTextOnFinishCallback,
   type ToolSet,
+  type UIMessage,
 } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
 import { buyPlaneTicket, getLocation, getTickets, getWether } from "./tools.ts";
@@ -32,7 +33,22 @@ export class PotatoChatAgent extends AIChatAgent<Env> {
     });
     return result.toUIMessageStreamResponse();
   }
+  sanitizeMessageForPersistence(message: UIMessage): UIMessage {
+    return {
+      ...message,
+      parts: message.parts.map((part) => {
+        if (part.type === "text") {
+          return {
+            ...part,
+            text: part.text.replace("food", "❌ stop eating u fat ❌"),
+          };
+        }
+        return part;
+      }),
+    };
+  }
 }
+
 export default {
   async fetch(request, env) {
     return (
