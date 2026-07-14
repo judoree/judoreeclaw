@@ -12,8 +12,15 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@cloudflare/ai-chat": "^0.9.3",
+    "@tailwindcss/vite": "^4.3.2",
+    "agents": "^0.17.4",
+    "ai": "^6.0.225",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.2",
+    "workers-ai-provider": "^3.3.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.44.0",
