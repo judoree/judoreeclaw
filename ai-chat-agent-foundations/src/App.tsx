@@ -1,12 +1,19 @@
 import { useAgentChat } from "agents/chat/react";
 import { useAgent } from "agents/react";
-import { getToolName, isToolUIPart, tool, type UIMessage } from "ai";
+import { getToolName, isToolUIPart, type UIMessage } from "ai";
 
 import type React from "react";
 
 function App() {
   const agent = useAgent({ agent: "PotatoChatAgent" });
-  const { messages, sendMessage, clearHistory, status } = useAgentChat({
+  const {
+    messages,
+    sendMessage,
+    clearHistory,
+    status,
+    stop,
+    addToolApprovalResponse,
+  } = useAgentChat({
     agent,
     onToolCall: async ({ toolCall, addToolOutput }) => {
       if (toolCall.toolName === "getLocation") {
@@ -45,6 +52,57 @@ function App() {
           </p>
         );
       if (isToolUIPart(part)) {
+        if ("approval" in part && part.state === "approval-requested") {
+          return (
+            <div
+              key={i}
+              className="text-sm bg-yellow-50 border border-yellow-300 p-2 rounded my-1"
+            >
+              <div>
+                <strong>Approve {getToolName(part)}?</strong>
+              </div>
+              {"input" in part && part.input != null && (
+                <pre className="mt-1">
+                  {JSON.stringify(part.input, null, 2)}
+                </pre>
+              )}
+              <div className="mt-2 flex gap-2">
+                <button
+                  className="px-3 py-1 bg-green-500 text-white rounded"
+                  onClick={() =>
+                    addToolApprovalResponse({
+                      id: part.approval.id,
+                      approved: true,
+                    })
+                  }
+                >
+                  Approve
+                </button>
+                <button
+                  className="px-3 py-1 bg-red-500 text-white rounded"
+                  onClick={() =>
+                    addToolApprovalResponse({
+                      id: part.approval.id,
+                      approved: false,
+                    })
+                  }
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          );
+        }
+        if (part.state === "output-denied") {
+          return (
+            <div
+              key={i}
+              className="text-sm bg-red-50 border border-red-300 p-2 rounded my-1"
+            >
+              <strong>{getToolName(part)}</strong> — Rejected
+            </div>
+          );
+        }
         return (
           <div
             key={i}
@@ -93,6 +151,12 @@ function App() {
               className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
             >
               Send
+            </button>
+            <button
+              onClick={stop}
+              className="rounded-full bg-red-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+            >
+              Stop
             </button>
           </form>
           <button

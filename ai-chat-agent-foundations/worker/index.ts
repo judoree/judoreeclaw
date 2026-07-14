@@ -1,11 +1,20 @@
 import { AIChatAgent } from "@cloudflare/ai-chat";
 import { routeAgentRequest } from "agents";
-import { convertToModelMessages, isLoopFinished, streamText } from "ai";
+import {
+  convertToModelMessages,
+  isLoopFinished,
+  streamText,
+  type StreamTextOnFinishCallback,
+  type ToolSet,
+} from "ai";
 import { createWorkersAI } from "workers-ai-provider";
-import { getLocation, getWether } from "./tools.ts";
+import { buyPlaneTicket, getLocation, getTickets, getWether } from "./tools.ts";
 
 export class PotatoChatAgent extends AIChatAgent<Env> {
-  async onChatMessage() {
+  async onChatMessage(
+    _onFinish: StreamTextOnFinishCallback<ToolSet>,
+    options?: { abortSignal?: AbortSignal }
+  ) {
     const workersAi = createWorkersAI({
       binding: this.env.AI,
     });
@@ -15,7 +24,10 @@ export class PotatoChatAgent extends AIChatAgent<Env> {
       tools: {
         getWether,
         getLocation,
+        getTickets,
+        buyPlaneTicket,
       },
+      abortSignal: options?.abortSignal,
       stopWhen: isLoopFinished(),
     });
     return result.toUIMessageStreamResponse();
