@@ -3,7 +3,7 @@ import { useAgentChat } from "agents/chat/react";
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
 
 function App() {
-  const agent = useAgent({ agent: "EmailAgent" });
+  const agent = useAgent({ agent: "EmailAgent", name: "default" });
 
   const {
     messages,
