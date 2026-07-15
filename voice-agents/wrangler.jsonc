@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "voice-agents",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-07-15",
+  "assets": {
+    "not_found_handling": "single-page-application",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "upload_source_maps": true,
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI",
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "VoiceAgent",
+        "name": "VoiceAgent",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["VoiceAgent"],
+      "tag": "1",
+    },
+  ],
+}

@@ -1,15 +1,8 @@
-import { AIChatAgent, type OnChatMessageOptions } from "@cloudflare/ai-chat";
+import { AIChatAgent } from "@cloudflare/ai-chat";
 import { routeAgentEmail, routeAgentRequest } from "agents";
 import { createAddressBasedEmailResolver, type AgentEmail } from "agents/email";
-import {
-  convertToModelMessages,
-  isLoopFinished,
-  streamText,
-  tool,
-  type StreamTextOnFinishCallback,
-  type ToolSet,
-} from "ai";
-import PostalMime from "postal-mime";
+import { convertToModelMessages, isLoopFinished, streamText, tool } from "ai";
+
 import { createWorkersAI } from "workers-ai-provider";
 import z from "zod";
 
