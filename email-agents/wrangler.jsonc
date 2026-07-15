@@ -17,6 +17,7 @@
   "send_email": [
     {
       "name": "EMAIL",
+      // "remote": true.  클라우드 에 이메일 등록 해야 가능
     },
   ],
   "durable_objects": {
