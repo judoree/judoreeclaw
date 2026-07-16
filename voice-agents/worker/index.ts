@@ -4,7 +4,7 @@ import {
   WorkersAITTS,
   type VoiceTurnContext,
 } from "@cloudflare/voice";
-import { Agent, routeAgentRequest } from "agents";
+import { Agent, callable, routeAgentRequest, type Connection } from "agents";
 import { isLoopFinished, streamText, tool } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
 import z from "zod";
@@ -14,6 +14,10 @@ const VoiceAgentBase = withVoice(Agent);
 export class VoiceAgent extends VoiceAgentBase<Env> {
   transcriber = new WorkersAIFluxSTT(this.env.AI);
   tts = new WorkersAITTS(this.env.AI);
+
+  beforeSynthesize(text: string) {
+    return text.replaceAll("*", "");
+  }
 
   async onTurn(transcript: string, context: VoiceTurnContext) {
     const workersAi = createWorkersAI({ binding: this.env.AI });
@@ -32,12 +36,19 @@ export class VoiceAgent extends VoiceAgentBase<Env> {
         getWeather: tool({
           description: "Get the weather of a city",
           inputSchema: z.object({ city: z.string() }),
-          execute: ({ city }) => `The weather in city is ${city}`,
+          execute: ({ city }) => {
+            console.log(city);
+            return `The weather in city is ${city} is Sunny`;
+          },
         }),
       },
     });
 
     return result.textStream;
+  }
+  @callable()
+  getHistory() {
+    return this.getConversationHistory(50);
   }
 }
 
