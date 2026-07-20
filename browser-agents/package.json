@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^8.0.2",
+    "@cloudflare/puppeteer": "^1.1.0",
     "@cloudflare/vite-plugin": "^1.37.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.4",
