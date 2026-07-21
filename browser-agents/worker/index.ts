@@ -55,6 +55,21 @@ export class BrowserAgent extends AIChatAgent<Env> {
             return { ok: true };
           },
         }),
+        takeScreenshot: tool({
+          description: "Take a scrennshot of rhe page",
+          inputSchema: z.object({}),
+          execute: async () => {
+            const page = await this.getPage();
+            const buffer = await page.screenshot({ type: "jpeg" });
+            const key = `screenshots/${Date.now()}.png`;
+            await this.env.FILES.put(key, buffer, {
+              httpMetadata: {
+                contentType: "image/jpeg",
+              },
+            });
+            return { ok: true, fliename: key };
+          },
+        }),
       },
       stopWhen: isLoopFinished(),
     });

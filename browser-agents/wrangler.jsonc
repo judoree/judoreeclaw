@@ -30,6 +30,18 @@
   ],
   "browser": {
     "binding": "BROWSER",
+    // "remote": true
   },
-  "worker_loaders": [{ "binding": "LOADER" }],
+  "worker_loaders": [
+    {
+      "binding": "LOADER",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "bucket_name": "browser-agents-bucket",
+      "binding": "FILES",
+      "remote": true,
+    },
+  ],
 }
