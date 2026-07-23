@@ -90,7 +90,15 @@ function App() {
             </div>
           );
         }
-
+        const name = getToolName(part);
+        const output =
+          part.state === "output-available"
+            ? (part.output as { filename?: string } | undefined)
+            : undefined;
+        const screenshotKey =
+          name === "takeScreenshot" && output?.filename
+            ? output.filename
+            : null;
         return (
           <div
             key={i}
@@ -107,10 +115,18 @@ function App() {
                 {JSON.stringify(part.input, null, 2)}
               </pre>
             )}
-            {part.state === "output-available" && (
-              <pre className="mt-1 overflow-x-auto text-zinc-600">
-                {JSON.stringify(part.output, null, 2)}
-              </pre>
+            {screenshotKey ? (
+              <img
+                src={`/${screenshotKey}`}
+                alt="screenshot"
+                className="mt-2 w-full rounded border border-zinc-200"
+              />
+            ) : (
+              part.state === "output-available" && (
+                <pre className="mt-1 overflow-x-auto text-zinc-600">
+                  {JSON.stringify(part.output, null, 2)}
+                </pre>
+              )
             )}
           </div>
         );
