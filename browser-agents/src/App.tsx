@@ -1,10 +1,12 @@
 import { useAgentChat } from "agents/chat/react";
 import { useAgent } from "agents/react";
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
+import type { BrowserAgent, BrowserAgentState } from "../worker/index";
 
 function App() {
-  const agent = useAgent({ agent: "BrowserAgent" });
-
+  const agent = useAgent<BrowserAgent, BrowserAgentState>({
+    agent: "BrowserAgent",
+  });
   const {
     messages,
     sendMessage,
@@ -172,6 +174,7 @@ function App() {
           <span className="shrink-0 text-xs text-zinc-400">{status}</span>
         </div>
       </header>
+      {agent?.state?.liveUrl ? <iframe src={agent.state.liveUrl} /> : null}
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 pb-24">
         <div className="flex-1 space-y-4">
