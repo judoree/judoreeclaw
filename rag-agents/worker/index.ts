@@ -4,6 +4,11 @@ import { embedMany } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
 
 export class RAGAgent extends AIChatAgent<Env> {
+  onStart() {
+    void this
+      .sql`CREATE TABLE IF NOT EXISTS chunks (id TEXT PRIMARY KEY, source TEXT NOT NULL, text TEXT NOT NULL);`;
+  }
+
   async convert(fileName: string, buffer: ArrayBuffer, fileType: string) {
     const result = await this.env.AI.toMarkdown({
       name: fileName,
@@ -19,16 +24,27 @@ export class RAGAgent extends AIChatAgent<Env> {
       model: workersAi.textEmbeddingModel("@cf/baai/bge-base-en-v1.5"),
       values: chunks,
     });
-    console.log(embeddings[0].length);
+    return embeddings;
   }
 
   async ingestPdf(buffer: ArrayBuffer, fileName: string, fileType: string) {
     const markdown = await this.convert(fileName, buffer, fileType);
     const chunks = markdown.split("\n\n\n");
+    console.log(chunks);
     const embeddings = await this.embedChunks(chunks);
+    const vectors = chunks.map((chunk, index) => {
+      const id = crypto.randomUUID();
+      void this
+        .sql`INSERT INTO chunks (id, source, text) VALUES (${id}, ${fileName}, ${chunk})`;
+      return {
+        id,
+        values: embeddings[index],
+        metadata: { source: fileName },
+      };
+    });
+    await this.env.VECTORIZE.upsert(vectors);
   }
 }
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
