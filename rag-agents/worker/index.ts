@@ -1,9 +1,21 @@
 import { AIChatAgent } from "@cloudflare/ai-chat";
 import { getAgentByName, routeAgentRequest } from "agents";
-import { embedMany } from "ai";
+import {
+  convertToModelMessages,
+  embedMany,
+  isLoopFinished,
+  streamText,
+  tool,
+} from "ai";
 import { createWorkersAI } from "workers-ai-provider";
+import z from "zod";
 
 export class RAGAgent extends AIChatAgent<Env> {
+  embedder() {
+    return createWorkersAI({ binding: this.env.AI }).textEmbeddingModel(
+      "@cf/baai/bge-base-en-v1.5"
+    );
+  }
   onStart() {
     void this
       .sql`CREATE TABLE IF NOT EXISTS chunks (id TEXT PRIMARY KEY, source TEXT NOT NULL, text TEXT NOT NULL);`;
@@ -19,9 +31,8 @@ export class RAGAgent extends AIChatAgent<Env> {
   }
 
   async embedChunks(chunks: string[]) {
-    const workersAi = createWorkersAI({ binding: this.env.AI });
     const { embeddings } = await embedMany({
-      model: workersAi.textEmbeddingModel("@cf/baai/bge-base-en-v1.5"),
+      model: this.embedder(),
       values: chunks,
     });
     return embeddings;
@@ -44,7 +55,45 @@ export class RAGAgent extends AIChatAgent<Env> {
     });
     await this.env.VECTORIZE.upsert(vectors);
   }
+
+  async onChatMessage() {
+    const workersAi = createWorkersAI({ binding: this.env.AI });
+    const result = streamText({
+      model: workersAi("@cf/zai-org/glm-4.7-flash"),
+      system:
+        "You answer questions using ingested documents. Use `recall` to look up information before answering questions about ingested content.",
+      messages: await convertToModelMessages(this.messages),
+      tools: {
+        recall: tool({
+          description:
+            "Search ingested documents for chunks relevant to a query. Call this before answering questions about previously-saved content.",
+          inputSchema: z.object({
+            query: z.string().meta({ description: "What to look up." }),
+          }),
+          execute: async ({ query }) => {
+            const { embedding } = await embed({
+              model: this.embedder(),
+              value: query,
+            });
+            const { matches } = await this.env.VECTORIZE.query(embedding, {
+              topK: 5,
+            });
+            return matches.map((match) => {
+              const [result] = this
+                .sql`SELECT * FROM chunks WHERE id = ${match.id}`;
+              return result;
+            });
+          },
+        }),
+      },
+
+      stopWhen: isLoopFinished(),
+    });
+
+    return result.toUIMessageStreamResponse();
+  }
 }
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
