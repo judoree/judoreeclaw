@@ -2,11 +2,15 @@
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sub-agents",
   "main": "worker/index.ts",
-  "compatibility_date": "2026-08-04",
+  "compatibility_date": "2026-05-15",
   "assets": {
     "not_found_handling": "single-page-application",
   },

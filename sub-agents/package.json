@@ -6,27 +6,28 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "lint": "eslint .",
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@cloudflare/ai-chat": "^0.7.0",
+    "@cloudflare/ai-chat": "^0.10.1",
     "@tailwindcss/vite": "^4.3.0",
-    "agents": "^0.12.4",
+    "agents": "^0.20.1",
     "ai": "^6.0.182",
-    "cloudflare": "^6.5.0",
+    "cloudflare": "^6.2.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.3.0",
-    "workers-ai-provider": "^3.1.14",
+    "workers-ai-provider": "^3.3.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^8.0.2",
     "@cloudflare/vite-plugin": "^1.37.1",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^24.12.4",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
@@ -37,6 +38,6 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.10",
-    "wrangler": "^4.92.0"
+    "wrangler": "^4.118.0"
   }
 }
